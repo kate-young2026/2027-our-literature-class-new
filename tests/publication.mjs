@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {selectPublicRevisions} from '../lib/publication.ts';
+const row=(id,lessonId,status,content)=>({id,lessonId,status,content,createdAt:'2027-01-01'});
+const rows=[row(3,1,'draft','draft secret'),row(2,1,'published','visible'),row(1,1,'teacher','teacher secret'),row(4,2,'published','old'),row(5,2,'hidden','hidden secret'),row(6,3,'teacher','teacher only'),row(7,4,'hidden','old hidden'),row(8,4,'published','republished')];
+const result=selectPublicRevisions(rows.reverse());
+assert.equal(result.length,3);
+assert.equal(result.find(x=>x.lessonId===1).content,'visible');
+assert.deepEqual(result.find(x=>x.lessonId===2),{lessonId:2,status:'hidden'});
+assert.equal(result.find(x=>x.lessonId===4).content,'republished');
+assert.ok(!JSON.stringify(result).includes('secret'));
+console.log('공개·초안·교사용·공개 중지·복원 선택 검사 통과');
